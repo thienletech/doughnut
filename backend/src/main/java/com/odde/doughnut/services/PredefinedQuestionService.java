@@ -36,6 +36,15 @@ public class PredefinedQuestionService {
     return predefinedQuestion;
   }
 
+  public PredefinedQuestion updateQuestion(PredefinedQuestion predefinedQuestion) {
+    modelFactoryService.save(predefinedQuestion);
+    return predefinedQuestion;
+  }
+
+  public void removeQuestion(PredefinedQuestion predefinedQuestion) {
+    modelFactoryService.remove(predefinedQuestion);
+  }
+
   public PredefinedQuestion refineAIQuestion(Note note, PredefinedQuestion predefinedQuestion) {
     MCQWithAnswer aiGeneratedRefineQuestion =
         aiQuestionGenerator.getAiGeneratedRefineQuestion(

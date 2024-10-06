@@ -82,6 +82,33 @@ class RestPredefinedQuestionController {
     return predefinedQuestionService.addQuestion(note, predefinedQuestion);
   }
 
+  @PatchMapping("/{note}/note-questions/{predefinedQuestion}")
+  @Transactional
+  public PredefinedQuestion updateQuestion(
+      @PathVariable("note") @Schema(type = "integer") Note note,
+      @PathVariable("predefinedQuestion") @Schema(type = "integer")
+          PredefinedQuestion predefinedQuestion,
+      @Valid @RequestBody PredefinedQuestion predefinedQuestionUpdateRequest)
+      throws UnexpectedNoAccessRightException {
+    currentUser.assertAuthorization(note);
+    predefinedQuestion.setBareQuestion(predefinedQuestionUpdateRequest.getBareQuestion());
+    predefinedQuestion.setCorrectAnswerIndex(
+        predefinedQuestionUpdateRequest.getCorrectAnswerIndex());
+    predefinedQuestion.setApproved(predefinedQuestionUpdateRequest.isApproved());
+    return predefinedQuestionService.updateQuestion(predefinedQuestion);
+  }
+
+  @DeleteMapping("/{note}/note-questions/{predefinedQuestion}")
+  @Transactional
+  public void removeQuestion(
+      @PathVariable("note") @Schema(type = "integer") Note note,
+      @PathVariable("predefinedQuestion") @Schema(type = "integer")
+          PredefinedQuestion predefinedQuestion)
+      throws UnexpectedNoAccessRightException {
+    currentUser.assertAuthorization(note);
+    predefinedQuestionService.removeQuestion(predefinedQuestion);
+  }
+
   @PostMapping("/{note}/refine-question")
   @Transactional
   public PredefinedQuestion refineQuestion(

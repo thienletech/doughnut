@@ -197,6 +197,50 @@ class RestPredefinedQuestionControllerTests {
   }
 
   @Nested
+  class updateQuestion {
+    @Test
+    void authorization() {
+      Note note = makeMe.aNote().please();
+      PredefinedQuestion predefinedQuestion = makeMe.aPredefinedQuestion().please();
+      PredefinedQuestion predefinedQuestionRequestBody = makeMe.aPredefinedQuestion().please();
+      assertThrows(
+          UnexpectedNoAccessRightException.class,
+          () -> controller.updateQuestion(note, predefinedQuestion, predefinedQuestionRequestBody));
+    }
+
+    @Test
+    void persistent() throws UnexpectedNoAccessRightException {
+      Note note = makeMe.aNote().creatorAndOwner(currentUser).hasAnUnapprovedQuestion().please();
+      PredefinedQuestion question = note.getPredefinedQuestions().getFirst();
+      PredefinedQuestion questionUpdateRequest = makeMe.aPredefinedQuestion().please(false);
+      questionUpdateRequest.setApproved(true);
+      controller.updateQuestion(note, question, questionUpdateRequest);
+      makeMe.refresh(question);
+      assertTrue(question.isApproved());
+    }
+  }
+
+  @Nested
+  class removeQuestion {
+    @Test
+    void authorization() {
+      Note note = makeMe.aNote().please();
+      PredefinedQuestion predefinedQuestion = makeMe.aPredefinedQuestion().please();
+      assertThrows(
+          UnexpectedNoAccessRightException.class,
+          () -> controller.removeQuestion(note, predefinedQuestion));
+    }
+
+    @Test
+    void persistent() throws UnexpectedNoAccessRightException {
+      Note note = makeMe.aNote().creatorAndOwner(currentUser).hasApprovedQuestions(2).please();
+      controller.removeQuestion(note, note.getPredefinedQuestions().getFirst());
+      makeMe.refresh(note);
+      assertThat(note.getPredefinedQuestions(), hasSize(1));
+    }
+  }
+
+  @Nested
   class RefineQuestion {
     @Test
     void authorization() {

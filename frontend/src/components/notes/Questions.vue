@@ -2,7 +2,7 @@
   <div>
     <PopButton btn-class="btn btn-primary" title="Add Question">
       <template #default="{ closer }">
-        <NoteAddQuestion
+        <NotePredefinedQuestion
           v-bind="{ note }"
           @close-dialog="
             closer();
@@ -14,6 +14,8 @@
     <table class="question-table mt-2" v-if="questions.length">
       <thead>
         <tr>
+          <th>Delete</th>
+          <th>Edit</th>
           <th>Approved</th>
           <th>Question Text</th>
           <th>A</th>
@@ -27,6 +29,32 @@
           v-for="(question, outerIndex) in questions"
           :key="question.bareQuestion.multipleChoicesQuestion.stem"
         >
+          <td>
+            <PopButton btn-class="btn btn-primary" title="Delete">
+              <template #default="{ closer }">
+                Do you want to delete this question?
+                <button btn-class="btn" title="Yes" @click="() => {removeQuestion(note, question); closer();}">
+                  Yes
+                </button>
+                <button btn-class="btn" title="No" @click="closer()">
+                  No
+                </button>
+              </template>
+            </PopButton>
+          </td>
+          <td>
+          <PopButton btn-class="btn btn-primary" title="Edit">
+            <template #default="{ closer }">
+              <NotePredefinedQuestion
+                v-bind="{ note, question}"
+                @close-dialog="
+                  closer();
+                  questionEdited($event);
+                "
+              />
+            </template>
+          </PopButton>
+          </td>
           <td>
             <input
               :id="'checkbox-' + outerIndex"
@@ -79,7 +107,7 @@ import type { PropType } from "vue"
 import { onMounted, ref } from "vue"
 import type { Note, PredefinedQuestion } from "@/generated/backend"
 import useLoadingApi from "@/managedApi/useLoadingApi"
-import NoteAddQuestion from "./NoteAddQuestion.vue"
+import NotePredefinedQuestion from "./NotePredefinedQuestion.vue"
 import QuestionManagement from "./QuestionManagement.vue"
 import PopButton from "../commons/Popups/PopButton.vue"
 
@@ -109,6 +137,24 @@ const toggleApproval = async (questionId?: number) => {
   if (questionId) {
     await managedApi.restPredefinedQuestionController.toggleApproval(questionId)
   }
+}
+const removeQuestion = async (note: Note, question: PredefinedQuestion) => {
+  if (question == null) {
+    return
+  }
+  await managedApi.restPredefinedQuestionController.removeQuestion(
+    note.id,
+    question.id
+  )
+  questions.value = questions.value.filter((q) => q.id !== question.id)
+}
+const questionEdited = (newQuestion: PredefinedQuestion) => {
+  if (newQuestion == null) {
+    return
+  }
+  questions.value = questions.value.map((question) =>
+    question.id === newQuestion.id ? newQuestion : question
+  )
 }
 onMounted(() => {
   fetchQuestions()

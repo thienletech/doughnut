@@ -1,4 +1,4 @@
-import NoteAddQuestion from "@/components/notes/NoteAddQuestion.vue"
+import NotePredefinedQuestion from "@/components/notes/NotePredefinedQuestion.vue"
 import { userEvent } from "@testing-library/user-event"
 import { screen } from "@testing-library/vue"
 import { flushPromises } from "@vue/test-utils"
@@ -8,7 +8,7 @@ import helper from "../helpers"
 const note = makeMe.aNoteRealm.please()
 const createWrapper = async () => {
   helper
-    .component(NoteAddQuestion)
+    .component(NotePredefinedQuestion)
     .withProps({
       note: note.note,
     })
@@ -16,7 +16,7 @@ const createWrapper = async () => {
   await flushPromises()
 }
 
-describe("NoteAddQuestion", () => {
+describe("NotePredefinedQuestion", () => {
   interface Case {
     question: Record<string, string>
     expectedRefineButton: boolean

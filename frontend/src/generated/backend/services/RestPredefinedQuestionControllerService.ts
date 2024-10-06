@@ -135,4 +135,52 @@ export class RestPredefinedQuestionControllerService {
             },
         });
     }
+    /**
+     * @param note
+     * @param predefinedQuestion
+     * @returns any OK
+     * @throws ApiError
+     */
+    public removeQuestion(
+        note: number,
+        predefinedQuestion: number,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'DELETE',
+            url: '/api/review-questions/{note}/note-questions/{predefinedQuestion}',
+            path: {
+                'note': note,
+                'predefinedQuestion': predefinedQuestion,
+            },
+            errors: {
+                500: `Internal Server Error`,
+            },
+        });
+    }
+    /**
+     * @param note
+     * @param predefinedQuestion
+     * @param requestBody
+     * @returns PredefinedQuestion OK
+     * @throws ApiError
+     */
+    public updateQuestion(
+        note: number,
+        predefinedQuestion: number,
+        requestBody: PredefinedQuestion,
+    ): CancelablePromise<PredefinedQuestion> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/api/review-questions/{note}/note-questions/{predefinedQuestion}',
+            path: {
+                'note': note,
+                'predefinedQuestion': predefinedQuestion,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                500: `Internal Server Error`,
+            },
+        });
+    }
 }

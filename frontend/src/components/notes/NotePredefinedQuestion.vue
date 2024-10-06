@@ -58,17 +58,34 @@ const props = defineProps({
     type: Object as PropType<Note>,
     required: true,
   },
+  question: {
+    type: Object as PropType<PredefinedQuestion>,
+  },
 })
 
-const predefinedQuestion = ref<PredefinedQuestion>({
-  correctAnswerIndex: 0,
-  bareQuestion: {
-    multipleChoicesQuestion: {
-      stem: "",
-      choices: ["", ""],
-    },
-  },
-} as PredefinedQuestion)
+const predefinedQuestion = ref<PredefinedQuestion>(
+  props.question
+    ? ({
+        correctAnswerIndex: props.question.correctAnswerIndex,
+        bareQuestion: {
+          multipleChoicesQuestion: {
+            stem: props.question.bareQuestion.multipleChoicesQuestion.stem,
+            choices: [
+              ...props.question.bareQuestion.multipleChoicesQuestion.choices,
+            ],
+          },
+        },
+      } as PredefinedQuestion)
+    : ({
+        correctAnswerIndex: 0,
+        bareQuestion: {
+          multipleChoicesQuestion: {
+            stem: "",
+            choices: ["", ""],
+          },
+        },
+      } as PredefinedQuestion)
+)
 
 const minimumNumberOfChoices = 2
 const maximumNumberOfChoices = 10
@@ -109,11 +126,16 @@ const removeChoice = () => {
 
 const submitQuestion = async () => {
   const reviewQuestionInstance = predefinedQuestion.value
-  const response =
-    await managedApi.restPredefinedQuestionController.addQuestionManually(
-      props.note.id,
-      reviewQuestionInstance
-    )
+  const response = props.question
+    ? await managedApi.restPredefinedQuestionController.updateQuestion(
+        props.note.id,
+        props.question.id,
+        reviewQuestionInstance
+      )
+    : await managedApi.restPredefinedQuestionController.addQuestionManually(
+        props.note.id,
+        reviewQuestionInstance
+      )
   emit("close-dialog", response)
 }
 
